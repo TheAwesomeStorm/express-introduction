@@ -1,53 +1,51 @@
 import express from 'express';
+import db from './config/dbConnect.js';
+import books from "./models/Book.js";
+
+db.on("error", console.log.bind(console, 'Connection error'));
+db.once("open", () => {
+  console.log("Connection with database established");
+});
 
 const app = express();
 
 app.use(express.json());
 
-const livros = [
-  {
-    id: 1,
-    title: 'Teste'
-  },
-  {
-    id: 2,
-    title: 'title'
-  }
-]
-
 app.get('/', (req, res) => {
   res.status(200).send('Build with Node.js and express');
 });
 
-app.get('/livros', (req, res) => {
-  res.status(200).json(livros);
+app.get('/books', (req, res) => {
+  books.find((err, books) => {
+    res.status(200).json(books);
+  });
 });
 
-app.get('/livros/:id', (req, res) => {
+app.get('/books/:id', (req, res) => {
   const index = searchBooks(req.params.id);
-  return res.json(livros[index]);
+  return res.json(books[index]);
 });
 
-app.post('/livros', (req, res) => {
-  livros.push(req.body);
+app.post('/books', (req, res) => {
+  books.push(req.body);
   res.status(201).send('Livro cadastrado');
 })
 
-app.put('/livros/:id', (req, res) => {
+app.put('/books/:id', (req, res) => {
   const index = searchBooks(req.params.id);
-  livros[index].title = req.body.title;
-  return res.json(livros);
+  books[index].title = req.body.title;
+  return res.json(books);
 });
 
-app.delete('/livros/:id', (req, res) => {
+app.delete('/books/:id', (req, res) => {
   const { id } = req.params;
   let index = searchBooks(id);
-  livros.splice(index, 1);
+  books.splice(index, 1);
   res.send('Livro removido');
 });
 
 function searchBooks(id) {
-  return livros.findIndex((livro) => {
+  return books.findIndex((livro) => {
     return livro.id == id
   });
 }
