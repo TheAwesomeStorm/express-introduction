@@ -2,9 +2,12 @@ import BookSchema from '../models/Book.js'
 
 export class BookController {
     static readBooks(req, res) {
-        BookSchema.find((err, books) => {
-            res.status(200).json(books);
-        });
+        BookSchema
+            .find()
+            .populate('author')
+            .exec((err, books) => {
+                res.status(200).json(books);
+            });
     }
 
     static readBookById(req, res) {
