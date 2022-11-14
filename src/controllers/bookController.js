@@ -13,13 +13,16 @@ export class BookController {
     static readBookById(req, res) {
         const id = req.params.id;
 
-        BookSchema.findById(id, (err, books) => {
-            if (err) {
-                res.status(400).send({ message: `${err.message} - Livro não encontrado` });
-                return;
-            }
-            res.status(200).json(books);
-        });
+        BookSchema
+            .findById(id)
+            .populate('author', 'name')
+            .exec((err, books) => {
+                if (err) {
+                    res.status(400).send({ message: `${err.message} - Livro não encontrado` });
+                    return;
+                }
+                res.status(200).json(books);
+            });
     }
 
     static  createBook(req, res) {
@@ -54,5 +57,12 @@ export class BookController {
             }
             res.status(200).send({ message: 'Livro removido' });
         });
+    }
+
+    static searchByPublisher(req, res) {
+        const publisher = req.query.publisher;
+        BookSchema.find({ 'publisher': publisher }, {}, (err, books) => {
+            res.status(200).send(books);
+        })
     }
 }
